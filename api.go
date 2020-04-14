@@ -28,8 +28,9 @@ func main() {
 	apiV2 := router.PathPrefix("/api/v2").Subrouter()
 
 	v2User := apiV2.PathPrefix("/user").Subrouter()
-	v2User.HandleFunc("/recognize", controllers.Recognize).Methods("OPTION", "POST")                     // Recognize
+	v2User.HandleFunc("/recognize", controller.Recognize).Methods("OPTION", "POST")                     // Recognize
 	
 	fmt.Println("App running on port " + APP_PORT)
 	log.Fatal(http.ListenAndServe(":"+APP_PORT, router))
 }
+

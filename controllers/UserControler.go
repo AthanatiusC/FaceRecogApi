@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"gonum.org/v1/gonum/floats"
-	"github.com/AthanatiucC/FaceRecogApi/controllers"
 
 	"github.com/AthanatiusC/FaceRecogApi/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -21,7 +20,6 @@ func Recognize(w http.ResponseWriter, r *http.Request) {
 	var userEmbeddings []models.UserEmbeddings
 	var recognition models.UserRecognition
 	var recognitionList []models.UserRecognition
-	var log models.Log
 
 	json.NewDecoder(r.Body).Decode(&recognition)
 
@@ -71,19 +69,7 @@ func Recognize(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(res.UserID)
 
 		if res.Accuracy <= 0.2 {
-			attendanceBody := models.AttendanceBody{
-				UserID:        res.UserID,
-				CameraID:      res.CameraID,
-				PhotoEncoding: res.PhotoEncoding,
-			}
-
-			log = models.Log{
-				UserID:   res.UserID,
-				CameraID: res.CameraID,
-			}
-			newAttendance(w, attendanceBody)
-			insertLog := logStore(log)
-			fmt.Println("insert log :", insertLog)
+			fmt.Println(res)
 		}
 
 		respondJSON(w, 200, "Returned Matching Identities", map[string]interface{}{
@@ -102,4 +88,29 @@ func euclideanDistance(emb1, emb2 []float64) float64 {
 		val += math.Pow(emb1[i]-emb2[i], 2)
 	}
 	return val
+}
+
+func respondJSON(w http.ResponseWriter, status int, message string, data interface{}) {
+	var payload models.Payload
+	if status == 200 {
+		payload.Status = true
+	} else {
+		payload.Status = false
+	}
+	payload.Message = message
+	payload.Data = data
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(payload)
+}
+
+func respondErrorValidationJSON(w http.ResponseWriter, status int, message string, data map[string]interface{}) {
+	var payload models.ErrorValidation
+	payload.Message = "Error"
+	payload.Errors = data
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(payload)
 }
