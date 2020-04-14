@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"gonum.org/v1/gonum/floats"
+	"github.com/AthanatiucC/FaceRecogApi/controllers"
 
 	"github.com/AthanatiusC/FaceRecogApi/models"
 	"go.mongodb.org/mongo-driver/bson"
